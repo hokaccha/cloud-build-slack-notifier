@@ -1,0 +1,36 @@
+{
+  "name": "cloud-build-slack-notifier",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Google Cloud Build notifications in Slack using Cloud Function.",
+  "main": "index.js",
+  "scripts": {
+    "build": "rm -rf ./dist && tsc && cp package.json dist",
+    "lint": "run-p -l -c --aggregate-output lint:*",
+    "lint:tsc": "tsc --noEmit",
+    "lint:eslint": "eslint . --max-warnings 0",
+    "lint:prettier": "prettier --check './src/**/*ts'",
+    "format": "run-s format:*",
+    "format:eslint": "eslint --fix .",
+    "format:prettier": "prettier --write './src/**/*.ts'"
+  },
+  "dependencies": {
+    "@slack/webhook": "^6.1.0",
+    "source-map-support": "^0.5.21"
+  },
+  "devDependencies": {
+    "@slack/types": "^2.4.0",
+    "@types/source-map-support": "^0.5.4",
+    "@typescript-eslint/eslint-plugin": "^5.22.0",
+    "eslint": "^8.14.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-typescript": "^2.7.1",
+    "eslint-plugin-import": "^2.26.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.6.2",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.4"
+  },
+  "author": "Kazuhito Hokamura",
+  "license": "MIT"
+}
