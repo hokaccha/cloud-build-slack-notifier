@@ -33,4 +33,9 @@ gcloud functions deploy \
   --entry-point=main \
   --trigger-topic cloud-builds \
   --runtime=nodejs16 \
-  --set-env-vars "SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL},NOTIFY_MESSAGE_TEXT=${NOTIFY_MESSAGE_TEXT},SLACK_CHANNEL=${SLACK_CHANNEL},SLACK_USERNAME=${SLACK_USERNAME},SLACK_ICON_EMOJI=${SLACK_ICON_EMOJI}"
+  --set-env-vars="SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}" \
+  --set-env-vars="^:^SUCCESS_NOTIFY_TRIGGER=${SUCCESS_NOTIFY_TRIGGER}" \
+  --set-env-vars="^:^FAILURE_NOTIFY_TRIGGER=${FAILURE_NOTIFY_TRIGGER}" \
+  --set-env-vars="SLACK_CHANNEL=${SLACK_CHANNEL}" \
+  --set-env-vars="SLACK_USERNAME=${SLACK_USERNAME}" \
+  --set-env-vars="SLACK_ICON_EMOJI=${SLACK_ICON_EMOJI}"

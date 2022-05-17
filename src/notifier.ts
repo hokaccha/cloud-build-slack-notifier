@@ -3,8 +3,6 @@ import type { IncomingWebhookSendArguments } from "@slack/webhook";
 import { IncomingWebhook } from "@slack/webhook";
 import type { EventData } from "./types";
 
-const NOTIFIABLE_STATUS = ["SUCCESS", "FAILURE", "INTERNAL_ERROR", "TIMEOUT"];
-
 function statusEmoji(status: string): string {
   switch (status) {
     case "SUCCESS":
@@ -20,9 +18,10 @@ function statusEmoji(status: string): string {
   }
 }
 
-function createMessage(data: EventData, messageText: string): IncomingWebhookSendArguments {
+function createMessage(data: EventData): IncomingWebhookSendArguments {
   const emoji = statusEmoji(data.status);
-  const text = format("%s %s *%s*\n<%s|*View Log*>", emoji, messageText, data.status, data.logUrl);
+  const triggerName = data.substitutions.TRIGGER_NAME;
+  const text = format("%s %s *%s*\n<%s|*View Log*>", emoji, triggerName, data.status, data.logUrl);
 
   const message: IncomingWebhookSendArguments = {
     text,
@@ -43,8 +42,28 @@ function createMessage(data: EventData, messageText: string): IncomingWebhookSen
   return message;
 }
 
+function notifiable(data: EventData): boolean {
+  if (["INTERNAL_ERROR", "TIMEOUT"].includes(data.status)) {
+    return true;
+  }
+
+  const triggerName = data.substitutions.TRIGGER_NAME;
+  const successTargets = process.env.SUCCESS_NOTIFY_TRIGGER?.split(",") || [];
+  const failureTargets = process.env.FAILURE_NOTIFY_TRIGGER?.split(",") || [];
+
+  if (data.status === "SUCCESS" && successTargets.includes(triggerName)) {
+    return true;
+  }
+
+  if (data.status === "FAILURE" && failureTargets.includes(triggerName)) {
+    return true;
+  }
+
+  return false;
+}
+
 export async function notify(data: EventData): Promise<void> {
-  if (NOTIFIABLE_STATUS.includes(data.status) === false) {
+  if (notifiable(data) === false) {
     return;
   }
 
@@ -55,9 +74,7 @@ export async function notify(data: EventData): Promise<void> {
     throw new Error("SLACK_WEBHOOK_URL is required.");
   }
 
-  const messageText = process.env.NOTIFY_MESSAGE_TEXT || "";
-
-  const message = createMessage(data, messageText);
+  const message = createMessage(data);
   const webhook = new IncomingWebhook(url);
   await webhook.send(message);
 
